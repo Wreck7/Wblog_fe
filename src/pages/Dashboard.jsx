@@ -20,8 +20,9 @@ export default function Dashboard() {
   return (
     <div>
       <h2 className="text-2xl font-bold">Dashboard</h2>
+      {/* {console.log(user)} */}
       {user ? (
-        <p>Welcome back, {user.username}!</p>
+        <p>Welcome back, {user.user.email}</p>
       ) : (
         <p className="italic">Loading user...</p>
       )}
