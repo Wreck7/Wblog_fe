@@ -72,75 +72,79 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg p-8 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6">Sign Up</h2>
+    <div className="flex items-center justify-center max-h-screen bg-[#FDF6E3] font-serif p-4">
+  {/* ^-- This 'min-h-screen' class makes the container fill the viewport height */}
+  <form
+    onSubmit={handleSubmit}
+    className="bg-[#FAF3E0] border-2 border-stone-400 p-8 w-full max-w-md shadow-lg"
+  >
+    <h2 className="text-3xl font-bold mb-8 text-center text-stone-800 uppercase tracking-widest">
+      Sign Up!
+    </h2>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={onChange}
-          required
-          className="w-full mb-4 px-3 py-2 border rounded"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={onChange}
-          required
-          className="w-full mb-4 px-3 py-2 border rounded"
-        />
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={onChange}
-          required
-          className="w-full mb-4 px-3 py-2 border rounded"
-        />
-        <select
-          name="gender"
-          value={form.gender}
-          onChange={onChange}
-          className="w-full mb-4 px-3 py-2 border rounded"
-        >
-          <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-        <input
-          type="file"
-          name="file"
-          accept="image/*"
-          onChange={onChange}
-          className="w-full mb-4"
-        />
+    <input
+      type="email"
+      name="email"
+      placeholder="Your Electronic Mail"
+      value={form.email}
+      onChange={onChange}
+      required
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800"
+    />
+    <input
+      type="password"
+      name="password"
+      placeholder="Your Secret Passcode"
+      value={form.password}
+      onChange={onChange}
+      required
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800"
+    />
+    <input
+      type="text"
+      name="username"
+      placeholder="Your Public Moniker"
+      value={form.username}
+      onChange={onChange}
+      required
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800"
+    />
+    <select
+      name="gender"
+      value={form.gender}
+      onChange={onChange}
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800 appearance-none"
+    >
+      <option value="">Select Gender...</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    
+    <input
+      type="file"
+      name="file"
+      accept="image/*"
+      onChange={onChange}
+      className="w-full mb-6 text-sm text-stone-600 file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-0 file:text-sm file:font-semibold file:bg-stone-800 file:text-stone-50 hover:file:bg-stone-700"
+    />
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+    {error && <p className="text-red-800 mb-4 text-center">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-        >
-          {loading ? "Signing up..." : "Sign Up"}
-        </button>
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full bg-stone-800 text-stone-50 py-3 uppercase tracking-wider font-semibold hover:bg-stone-700 disabled:bg-stone-500 disabled:cursor-not-allowed transition-colors duration-300"
+    >
+      {loading ? "Transmitting..." : "Signup"}
+    </button>
 
-        <p className="mt-4 text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Login
-          </Link>
-        </p>
-      </form>
-    </div>
+    <p className="mt-6 text-sm text-center text-stone-700">
+      Already in the club?{" "}
+      <Link to="/login" className="text-stone-900 font-bold hover:underline">
+        Login Here
+      </Link>
+    </p>
+  </form>
+</div>
   );
 }

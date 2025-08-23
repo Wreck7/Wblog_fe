@@ -30,3 +30,19 @@ const useAuthStore = create((set) => ({
 }));
 
 export default useAuthStore;
+
+
+// import { create } from "zustand";
+
+// const useAuthStore = create((set) => ({
+//   user: null,
+
+//   setUser: (user) => set({ user }),
+
+//   logout: () => {
+//     set({ user: null });
+//     // Optionally call backend logout API to clear cookies
+//   },
+// }));
+
+// export default useAuthStore;

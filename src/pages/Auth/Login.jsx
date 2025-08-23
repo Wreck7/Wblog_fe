@@ -38,47 +38,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-center font-serif">Login</h2>
+    <div className="flex items-center justify-center max-h-screen bg-[#FDF6E3] font-serif p-4">
+  <form
+    onSubmit={handleSubmit}
+    className="bg-[#FAF3E0] border-2 border-stone-400 p-8 w-full max-w-md shadow-lg"
+  >
+    <h2 className="text-3xl font-bold mb-8 text-center text-stone-800 uppercase tracking-widest">
+      Welcome Back!
+    </h2>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+    <input
+      type="email"
+      name="email"
+      placeholder="Your Electronic Mail"
+      value={form.email}
+      onChange={handleChange}
+      required
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800"
+    />
+    <input
+      type="password"
+      name="password"
+      placeholder="Your Secret Passcode"
+      value={form.password}
+      onChange={handleChange}
+      required
+      className="w-full bg-transparent border-b-2 border-stone-400 py-2 mb-6 focus:outline-none focus:border-stone-800"
+    />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="w-full border px-3 py-2 rounded-md"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="w-full border px-3 py-2 rounded-md"
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+    {error && <p className="text-red-800 mb-4 text-center">{error}</p>}
 
-        <p className="mt-4 text-center text-sm">
-          Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-500 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full bg-stone-800 text-stone-50 py-3 uppercase tracking-wider font-semibold hover:bg-stone-700 disabled:bg-stone-500 disabled:cursor-not-allowed transition-colors duration-300"
+    >
+      {loading ? "Authenticating..." : "Login"}
+    </button>
+
+    <p className="mt-6 text-sm text-center text-stone-700">
+      New to the club?{" "}
+      <Link to="/signup" className="text-stone-900 font-bold hover:underline">
+        Sign Up Here
+      </Link>
+    </p>
+  </form>
+</div>
   );
 }
