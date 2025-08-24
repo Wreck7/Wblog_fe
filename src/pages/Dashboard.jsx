@@ -104,7 +104,6 @@
 //   );
 // }
 
-
 // src/pages/Dashboard.jsx
 import { useEffect } from "react";
 import axiosClient from "../utils/axiosClient";
@@ -139,7 +138,7 @@ export default function Dashboard() {
       </section>
 
       {/* Feed Section */}
-      <section
+      {/* <section
         id="feed"
         className="py-16 px-6 bg-[#FAF3E0] border-t-2 border-stone-400"
       >
@@ -157,7 +156,7 @@ export default function Dashboard() {
             </button>
           </article>
         </div>
-      </section>
+      </section> */}
 
       {/* About Us Section */}
       <section
@@ -174,6 +173,12 @@ export default function Dashboard() {
           into the latest!
         </p>
       </section>
+      {/* Footer Section */}
+      <footer className="py-8 bg-[#FAF3E0] text-center">
+        <p className="text-sm text-stone-700">
+          &copy; {new Date().getFullYear()} RetroBlog. All rights reserved.
+        </p>
+      </footer>
     </>
   );
 }

@@ -73,7 +73,7 @@ export default function Navbar() {
         </Link>
       </h1>
       <div className="space-x-6 text-sm font-semibold uppercase tracking-wider">
-        <Link to="/#feed" className="hover:underline">
+        <Link to="/posts" className="hover:underline">
           Feed
         </Link>
         <Link to="/#about" className="hover:underline">
