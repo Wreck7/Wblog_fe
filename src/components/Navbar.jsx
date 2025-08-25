@@ -20,7 +20,7 @@ export default function Navbar() {
         className="text-3xl font-extrabold uppercase tracking-[0.2em] text-stone-900"
       >
         <Link to="/" className="relative group">
-          RetroBlog
+          Inkspire
           <span className="absolute left-0 bottom-0 w-full h-[2px] bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
         </Link>
       </motion.h1>
@@ -45,15 +45,15 @@ export default function Navbar() {
             }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <button className="px-4 py-2 border-2 border-stone-800 bg-[#FDF6EC] hover:bg-[#FFE9B0] text-stone-700 font-bold uppercase tracking-wide rounded-sm shadow-[2px_2px_0px_#000000] transition-all duration-200 active:translate-y-[2px] active:shadow-none">
-  <Link
+              {/* <button className="px-4 py-2 border-2 border-stone-800 bg-[#FDF6EC] hover:bg-[#FFE9B0] text-stone-700 font-bold uppercase tracking-wide rounded-sm shadow-[2px_2px_0px_#000000] transition-all duration-200 active:translate-y-[2px] active:shadow-none"> */}
+  <Link 
     to={item.to}
-    className="relative group"
+    className="relative group px-4 py-2 border-2 border-stone-800 bg-[#FDF6EC] hover:bg-[#FFE9B0] text-stone-700 font-bold uppercase tracking-wide rounded-sm shadow-[2px_2px_0px_#000000] transition-all duration-200 active:translate-y-[2px] active:shadow-none"
   >
     {item.label}
     <span className="absolute left-0 bottom-0 w-full h-[2px] bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
   </Link>
-</button>
+{/* </button> */}
 
           </motion.div>
         ))}
