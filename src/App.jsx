@@ -10,6 +10,7 @@ import EditPost from "./pages/Posts/EditPost";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import "./App.css";
+import PostDetail from "./pages/Posts/PostDetail";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/posts" element={<PostList />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/posts/create" element={<CreatePost />} />
           <Route path="/posts/:id/edit" element={<EditPost />} />
         </Route>
