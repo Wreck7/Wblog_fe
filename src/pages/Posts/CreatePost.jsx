@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 export default function CreatePost() {
   const [imagePreview, setImagePreview] = useState(null);
+  const [category, setCategory] = useState("all");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -67,6 +68,24 @@ export default function CreatePost() {
               placeholder="Enter your post title..."
               className="w-full px-4 py-3 border-4 border-stone-900 bg-[#FFF] shadow-[4px_4px_0px_#000] focus:outline-none text-lg"
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-lg font-bold uppercase mb-3">
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-3 border-4 border-stone-900 bg-[#FFFBEA] shadow-[4px_4px_0px_#000] text-stone-900 uppercase text-base font-bold tracking-wider cursor-pointer hover:translate-x-1 hover:-translate-y-1 transition-transform"
+            >
+              <option value="all">📰 All</option>
+              <option value="tech">💻 Tech</option>
+              <option value="lifestyle">🌿 Lifestyle</option>
+              <option value="travel">✈️ Travel</option>
+              <option value="retro">🎬 Entertainment</option>
+            </select>
           </div>
 
           {/* Description */}
