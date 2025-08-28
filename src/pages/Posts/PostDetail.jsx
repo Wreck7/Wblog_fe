@@ -1,83 +1,240 @@
 // src/pages/PostDetail.jsx
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { Bookmark, Heart, Send, Share2 } from "lucide-react"; // <-- added Share2
-
-// Example data (replace with API later)
-const posts = [
-  {
-    id: 1,
-    title: "The Rise of Retro Tech",
-    content: `Back in the golden age of computing, aesthetics and utility collided.
-    The chunky pixels, bold fonts, and tactile buttons shaped an era of tech
-    that still inspires designers and developers today.`,
-    author: "Vishwa Govula",
-    date: "Aug 25, 2025",
-    image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
-  },
-  {
-    id: 2,
-    title: "Breaking: JavaScript Strikes Again",
-    content: `From ES6 to async/await, JavaScript keeps evolving faster than anyone
-    expected. But deep inside, callbacks still haunt the shadows...`,
-    author: "Jane Doe",
-    date: "Aug 20, 2025",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200",
-  },
-];
+import {
+  Bookmark,
+  Heart,
+  Send,
+  Share2,
+  PencilLine,
+  Trash2,
+  Check,
+  X,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import axiosClient from "../../utils/axiosClient"; // adjust path if needed
 
 export default function PostDetail() {
   const { id } = useParams();
-  const post = posts.find((p) => p.id === Number(id));
 
+  // post
+  const [post, setPost] = useState(null);
+  const [loadingPost, setLoadingPost] = useState(true);
+
+  // likes
+  const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(12); // dummy initial likes
+
+  // bookmarks
   const [bookmarked, setBookmarked] = useState(false);
 
-  // comments state
-  const [comments, setComments] = useState([
-    { id: 1, user: "RetroFan99", text: "This gives me so much nostalgia!" },
-    {
-      id: 2,
-      user: "TechieGirl",
-      text: "Love the design, waiting for part 2 👏",
-    },
-  ]);
+  // comments
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(true);
   const [newComment, setNewComment] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState("");
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    setComments([
-      ...comments,
-      { id: Date.now(), user: "You", text: newComment.trim() },
-    ]);
-    setNewComment("");
-  };
+  const postId = useMemo(() => id, [id]);
 
-  const handleLike = () => {
-    if (liked) {
-      setLikeCount((prev) => prev - 1);
-    } else {
-      setLikeCount((prev) => prev + 1);
-    }
-    setLiked(!liked);
-  };
-
+  // Share
   const handleShare = () => {
     const postUrl = window.location.href;
     if (navigator.share) {
       navigator.share({
-        title: post.title,
+        title: post?.title || "Post",
         text: "Check out this post!",
         url: postUrl,
       });
     } else {
       navigator.clipboard.writeText(postUrl);
-      alert("Post link copied to clipboard!");
+      toast.success("Link copied to clipboard");
     }
   };
+
+  // --- Fetchers ---
+  useEffect(() => {
+    let active = true;
+
+    async function fetchPost() {
+      setLoadingPost(true);
+      try {
+        const { data } = await axiosClient.get(`/posts/${postId}`);
+        const p = data?.post || data?.res || data;
+        if (active) setPost(p);
+      } catch (e) {
+        console.error(e);
+        if (active) toast.error("Failed to load post");
+      } finally {
+        if (active) setLoadingPost(false);
+      }
+    }
+
+    async function fetchLikes() {
+      try {
+        // total like count
+        const { data } = await axiosClient.get(`/posts/${postId}/likes`);
+        const count = typeof data === "number" ? data : data?.count ?? 0;
+        setLikeCount(count);
+
+        // check if current user liked
+        const { data: likedData } = await axiosClient.get(
+          `/posts/${postId}/likes/check`
+        );
+        setLiked(!!likedData?.liked);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function fetchBookmarkStatus() {
+      try {
+        const { data } = await axiosClient.get(
+          `/posts/${postId}/is-bookmarked`
+        );
+        setBookmarked(!!data?.bookmarked);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function fetchComments() {
+      setLoadingComments(true);
+      try {
+        const { data } = await axiosClient.get(`/posts/${postId}/comments`);
+        const list = data?.res || data?.comments || [];
+        setComments(list);
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to load comments");
+      } finally {
+        setLoadingComments(false);
+      }
+    }
+
+    fetchPost();
+    fetchLikes();
+    fetchBookmarkStatus();
+    fetchComments();
+
+    return () => {
+      active = false;
+    };
+  }, [postId]);
+
+  // --- Actions ---
+  const toggleLike = async () => {
+    if (!post) return;
+    const prevLiked = liked;
+    const prevCount = likeCount;
+
+    try {
+      if (liked) {
+        setLiked(false);
+        setLikeCount((c) => Math.max(0, c - 1));
+        await axiosClient.delete(`/posts/${postId}/likes`);
+      } else {
+        setLiked(true);
+        setLikeCount((c) => c + 1);
+        await axiosClient.post(`/posts/${postId}/likes`);
+      }
+    } catch (e) {
+      setLiked(prevLiked);
+      setLikeCount(prevCount);
+      toast.error("Failed to update like");
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!post) return;
+    const prev = bookmarked;
+    try {
+      if (bookmarked) {
+        setBookmarked(false);
+        await axiosClient.delete(`/posts/${postId}/bookmark`);
+        toast.success("Bookmark removed");
+      } else {
+        setBookmarked(true);
+        await axiosClient.post(`/posts/${postId}/bookmark`);
+        toast.success("Post bookmarked");
+      }
+    } catch (e) {
+      setBookmarked(prev);
+      toast.error("Failed to update bookmark");
+    }
+  };
+
+  // Add new comment
+  const addComment = async () => {
+    const content = newComment.trim();
+    if (!content) return;
+    try {
+      const optimistic = {
+        id: `temp-${Date.now()}`,
+        content,
+        profiles: { username: "You", image_url: "https://i.pravatar.cc/40" },
+      };
+      setComments((c) => [optimistic, ...c]); // prepend since backend returns desc order
+      setNewComment("");
+
+      await axiosClient.post(`/posts/${postId}/comments`, { content });
+      toast.success("Comment added");
+
+      // re-fetch to get real IDs/order
+      const { data } = await axiosClient.get(`/posts/${postId}/comments`);
+      setComments(data?.res || []);
+    } catch (e) {
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const startEdit = (comment) => {
+    setEditingId(comment.id);
+    setEditingText(comment.text || comment.content || "");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingText("");
+  };
+
+  // Update comment
+  const saveEdit = async (commentId) => {
+    const content = editingText.trim();
+    if (!content) return;
+    try {
+      await axiosClient.put(`/posts/${commentId}/comments`, { content });
+      toast.success("Comment updated");
+      setComments((c) =>
+        c.map((cm) => (cm.id === commentId ? { ...cm, content } : cm))
+      );
+      cancelEdit();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to update comment");
+    }
+  };
+
+  const deleteComment = async (commentId) => {
+  const prev = comments;
+  try {
+    setComments((c) => c.filter((cm) => cm.id !== commentId));
+    await axiosClient.delete(`/posts/${commentId}/comments`);
+    toast.success("Comment deleted");
+  } catch (e) {
+    toast.error("Failed to delete comment");
+    setComments(prev); // rollback
+  }
+};
+
+  if (loadingPost) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl">
+        Loading post…
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -86,6 +243,13 @@ export default function PostDetail() {
       </div>
     );
   }
+
+  const title = post.title;
+  const content = post.content;
+  const cover = post.cover_image_url;
+  const author = post.profiles?.username || "Unknown";
+  const authorImage = post.profiles?.image_url || "https://i.pravatar.cc/50";
+  const date = new Date(post.created_at || Date.now()).toLocaleDateString();
 
   return (
     <motion.section
@@ -98,24 +262,23 @@ export default function PostDetail() {
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-30 mix-blend-multiply pointer-events-none"></div>
 
       <div className="relative max-w-3xl mx-auto border-4 border-stone-800 bg-[#FDF6E3] shadow-[10px_10px_0px_#000] p-10">
-        {/* Author bar */}
+        {/* Author + Actions bar */}
         <div className="flex items-center justify-between border-b-2 border-stone-800 pb-3 mb-6">
           <div className="flex items-center gap-4 mb-6 border-2 border-stone-800 bg-[#FAF3E0] px-4 py-2 shadow-[4px_4px_0px_#000]">
-            {/* Author image */}
             <img
-              src="https://i.pravatar.cc/50"
-              alt="Author"
+              src={authorImage}
+              alt={author}
               className="w-10 h-10 rounded-full border-2 border-stone-800 shadow-sm"
             />
             <div>
-              <p className="font-bold text-stone-900">By {post.author}</p>
-              <p className="text-xs text-stone-600">{post.date}</p>
+              <p className="font-bold text-stone-900">By {author}</p>
+              <p className="text-xs text-stone-600">{date}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={handleLike}
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleLike}
               className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3] flex items-center gap-2"
             >
               <Heart
@@ -125,10 +288,12 @@ export default function PostDetail() {
               />
               <span className="text-sm font-semibold">{likeCount}</span>
             </motion.button>
+
             <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={() => setBookmarked(!bookmarked)}
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleBookmark}
               className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3]"
+              aria-label="Bookmark"
             >
               <Bookmark
                 className={`w-5 h-5 ${
@@ -138,11 +303,12 @@ export default function PostDetail() {
                 }`}
               />
             </motion.button>
-            {/* Share button */}
+
             <motion.button
-              whileTap={{ scale: 0.8 }}
+              whileTap={{ scale: 0.9 }}
               onClick={handleShare}
               className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3]"
+              aria-label="Share"
             >
               <Share2 className="w-5 h-5 text-stone-800" />
             </motion.button>
@@ -153,53 +319,125 @@ export default function PostDetail() {
         <motion.h1
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="text-4xl font-extrabold uppercase mb-6 tracking-wider"
         >
-          {post.title}
+          {title}
         </motion.h1>
 
         {/* Featured Image */}
-        {post.image && (
+        {cover && (
           <motion.img
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            src={post.image}
-            alt={post.title}
-            className="w-full max-h-[400px] object-cover border-4 border-stone-800 shadow-[6px_6px_0px_#000] mb-8"
+            transition={{ delay: 0.25 }}
+            src={cover}
+            alt={title}
+            className="w-full max-h-[420px] object-cover border-4 border-stone-800 shadow-[6px_6px_0px_#000] mb-8"
           />
         )}
 
         {/* Content */}
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-stone-800 leading-relaxed text-lg mb-10"
+          transition={{ delay: 0.3 }}
+          className="prose prose-stone max-w-none text-stone-800 leading-relaxed text-lg mb-10"
         >
-          {post.content}
-        </motion.p>
+          <p className="whitespace-pre-wrap">{content}</p>
+        </motion.div>
 
         {/* Comments Section */}
         <div className="mt-10 border-t-2 border-stone-800 pt-6">
           <h2 className="text-2xl font-bold mb-4 uppercase">Comments</h2>
 
           {/* Existing comments */}
-          <div className="space-y-4 mb-6">
-            {comments.map((c) => (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-                className="p-3 border-2 border-stone-800 bg-[#FFFDF5] shadow-[3px_3px_0px_#000]"
-              >
-                <p className="font-semibold text-sm">{c.user}:</p>
-                <p className="text-stone-700">{c.text}</p>
-              </motion.div>
-            ))}
-          </div>
+          {loadingComments ? (
+            <p className="text-stone-700">Loading comments…</p>
+          ) : (
+            <div className="space-y-4 mb-6">
+              {comments.length === 0 && (
+                <p className="text-stone-600">Be the first to comment.</p>
+              )}
+              {comments.map((c) => {
+                const isEditing = editingId === c.id;
+                const displayUser =
+                  c.user || c.username || c.profiles?.username || "User";
+                const avatar =
+                  c.profiles?.image_url || "https://i.pravatar.cc/40";
+
+                return (
+                  <motion.div
+                    key={c.id}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="p-3 border-2 border-stone-800 bg-[#FFFDF5] shadow-[3px_3px_0px_#000]"
+                  >
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={avatar}
+                        alt={displayUser}
+                        className="w-8 h-8 rounded-full border-2 border-stone-800"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-sm">{displayUser}</p>
+                          <div className="flex items-center gap-2">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  onClick={() => saveEdit(c.id)}
+                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                >
+                                  <Check className="w-4 h-4" /> Save
+                                </button>
+                                <button
+                                  onClick={cancelEdit}
+                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                >
+                                  <X className="w-4 h-4" /> Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => startEdit(c)}
+                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                >
+                                  <PencilLine className="w-4 h-4" /> Edit
+                                </button>
+                                <button
+                                  onClick={() => deleteComment(c.id)}
+                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                >
+                                  <Trash2 className="w-4 h-4" /> Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Comment body */}
+                        {isEditing ? (
+                          <textarea
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            rows={3}
+                            className="mt-2 w-full p-2 border-2 border-stone-800 bg-white shadow-[2px_2px_0px_#000] text-sm"
+                          />
+                        ) : (
+                          <p className="text-stone-700 mt-1">
+                            {c.text || c.content}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Add new comment */}
           <div className="flex items-center gap-2">
@@ -211,8 +449,8 @@ export default function PostDetail() {
               className="flex-1 p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FFFDF5] focus:outline-none"
             />
             <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleAddComment}
+              whileTap={{ scale: 0.95 }}
+              onClick={addComment}
               className="px-4 py-2.5 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] flex items-center gap-1"
             >
               <Send className="w-4 h-4" />
