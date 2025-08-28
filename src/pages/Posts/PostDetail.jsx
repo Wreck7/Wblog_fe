@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Bookmark, Heart, Send } from "lucide-react";
+import { Bookmark, Heart, Send, Share2 } from "lucide-react"; // <-- added Share2
 
 // Example data (replace with API later)
 const posts = [
@@ -15,7 +15,7 @@ const posts = [
     author: "Vishwa Govula",
     date: "Aug 25, 2025",
     image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200", // sample retro image
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ const posts = [
     expected. But deep inside, callbacks still haunt the shadows...`,
     author: "Jane Doe",
     date: "Aug 20, 2025",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200", // another sample
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200",
   },
 ];
 
@@ -65,6 +65,20 @@ export default function PostDetail() {
     setLiked(!liked);
   };
 
+  const handleShare = () => {
+    const postUrl = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: post.title,
+        text: "Check out this post!",
+        url: postUrl,
+      });
+    } else {
+      navigator.clipboard.writeText(postUrl);
+      alert("Post link copied to clipboard!");
+    }
+  };
+
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center text-2xl">
@@ -89,7 +103,7 @@ export default function PostDetail() {
           <div className="flex items-center gap-4 mb-6 border-2 border-stone-800 bg-[#FAF3E0] px-4 py-2 shadow-[4px_4px_0px_#000]">
             {/* Author image */}
             <img
-              src="https://i.pravatar.cc/50" // Dummy avatar
+              src="https://i.pravatar.cc/50"
               alt="Author"
               className="w-10 h-10 rounded-full border-2 border-stone-800 shadow-sm"
             />
@@ -123,6 +137,14 @@ export default function PostDetail() {
                     : "text-stone-800"
                 }`}
               />
+            </motion.button>
+            {/* Share button */}
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={handleShare}
+              className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3]"
+            >
+              <Share2 className="w-5 h-5 text-stone-800" />
             </motion.button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 // import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import MainLayout from "./Layouts/MainLayout";
 import AuthLayout from "./Layouts/AuthLayout";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ import PostDetail from "./pages/Posts/PostDetail";
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         {/* Auth routes */}
         <Route element={<AuthLayout />}>
