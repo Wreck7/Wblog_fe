@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosClient from "../../utils/axiosClient"; // adjust path if needed
+import useAuthStore from "../../store/authStore";
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -217,16 +218,16 @@ export default function PostDetail() {
   };
 
   const deleteComment = async (commentId) => {
-  const prev = comments;
-  try {
-    setComments((c) => c.filter((cm) => cm.id !== commentId));
-    await axiosClient.delete(`/posts/${commentId}/comments`);
-    toast.success("Comment deleted");
-  } catch (e) {
-    toast.error("Failed to delete comment");
-    setComments(prev); // rollback
-  }
-};
+    const prev = comments;
+    try {
+      setComments((c) => c.filter((cm) => cm.id !== commentId));
+      await axiosClient.delete(`/posts/${commentId}/comments`);
+      toast.success("Comment deleted");
+    } catch (e) {
+      toast.error("Failed to delete comment");
+      setComments(prev); // rollback
+    }
+  };
 
   if (loadingPost) {
     return (
@@ -366,6 +367,10 @@ export default function PostDetail() {
                 const avatar =
                   c.profiles?.image_url || "https://i.pravatar.cc/40";
 
+                // check ownership
+                const isOwner =
+                  c.author_id === useAuthStore.getState().user.user.id;
+
                 return (
                   <motion.div
                     key={c.id}
@@ -383,39 +388,41 @@ export default function PostDetail() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="font-semibold text-sm">{displayUser}</p>
-                          <div className="flex items-center gap-2">
-                            {isEditing ? (
-                              <>
-                                <button
-                                  onClick={() => saveEdit(c.id)}
-                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
-                                >
-                                  <Check className="w-4 h-4" /> Save
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
-                                >
-                                  <X className="w-4 h-4" /> Cancel
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => startEdit(c)}
-                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
-                                >
-                                  <PencilLine className="w-4 h-4" /> Edit
-                                </button>
-                                <button
-                                  onClick={() => deleteComment(c.id)}
-                                  className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
-                                >
-                                  <Trash2 className="w-4 h-4" /> Delete
-                                </button>
-                              </>
-                            )}
-                          </div>
+                          {isOwner && (
+                            <div className="flex items-center gap-2">
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    onClick={() => saveEdit(c.id)}
+                                    className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                  >
+                                    <Check className="w-4 h-4" /> Save
+                                  </button>
+                                  <button
+                                    onClick={cancelEdit}
+                                    className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                  >
+                                    <X className="w-4 h-4" /> Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => startEdit(c)}
+                                    className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                  >
+                                    <PencilLine className="w-4 h-4" /> Edit
+                                  </button>
+                                  <button
+                                    onClick={() => deleteComment(c.id)}
+                                    className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
+                                  >
+                                    <Trash2 className="w-4 h-4" /> Delete
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* Comment body */}
