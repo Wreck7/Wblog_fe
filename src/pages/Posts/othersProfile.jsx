@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "./Posts/PostCard";
-import defaultAvatar from "../assets/default-avatar.jpg"; // ✅ correct name
-import axiosClient from "../utils/axiosClient"; // adjust path if needed
+import axiosClient from "../../utils/axiosClient"; // adjust path if needed
 
 const dummyPosts = [
   { title: "Retro Post 1", excerpt: "Lorem ipsum dolor sit amet..." },
@@ -21,17 +20,26 @@ const dummyUsers = [
   { name: "Charlie Oldskool", img: "https://i.pravatar.cc/100?img=13" },
 ];
 
-export default function Profile() {
+export default function othersProfile() {
   const [activeTab, setActiveTab] = useState("posts");
   const [modalType, setModalType] = useState(null);
   const [user, setUser] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const { data } = await axiosClient.get("/profile/me");
         if (data?.res) {
           setUser(data.res);
+
+          // Once we know profile ID, check if following
+          const check = await axiosClient.get(
+            `/users/${data.res.id}/is-following`
+          );
+          setIsFollowing(check.data?.is_following || false);
         }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
@@ -39,6 +47,24 @@ export default function Profile() {
     };
     fetchProfile();
   }, []);
+
+  const handleFollowToggle = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      if (isFollowing) {
+        await axiosClient.delete(`/users/${user.id}/follow`);
+        setIsFollowing(false);
+      } else {
+        await axiosClient.post(`/users/${user.id}/follow`);
+        setIsFollowing(true);
+      }
+    } catch (err) {
+      console.error("Follow/Unfollow failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FDF6E3] p-8 font-serif">
@@ -50,23 +76,32 @@ export default function Profile() {
         className="flex flex-col items-center border-4 border-stone-800 bg-[#FAF3E0] shadow-[6px_6px_0px_#000] p-6 rounded-lg mb-10 relative"
       >
         <img
-          src={
-            user?.image_url ||
-            // "https://i.pravatar.cc/150?img=8"
-            defaultAvatar
-          }
+          src={user?.image_url || "https://i.pravatar.cc/150?img=8"}
           alt="Profile"
           className="w-28 h-28 rounded-full border-4 border-stone-800 shadow-[4px_4px_0px_#000] mb-4"
         />
         <h2 className="text-3xl font-extrabold uppercase mb-1 tracking-widest">
           {user?.username || "Loading..."}
         </h2>
-        {user?.bio && (
-          <p className="italic text-stone-700 mb-3">{user.bio}</p>
+        {user?.bio && <p className="italic text-stone-700 mb-3">{user.bio}</p>}
+
+        {/* Follow / Unfollow button */}
+        {user && (
+          <button
+            onClick={handleFollowToggle}
+            disabled={loading}
+            className={`px-4 py-2 mt-2 border-2 border-stone-800 font-bold uppercase tracking-widest shadow-[3px_3px_0px_#000] ${
+              isFollowing
+                ? "bg-red-600 text-[#FAF3E0] hover:bg-red-700"
+                : "bg-green-600 text-[#FAF3E0] hover:bg-green-700"
+            }`}
+          >
+            {loading ? "..." : isFollowing ? "Unfollow" : "Follow"}
+          </button>
         )}
 
         {/* Followers & Following */}
-        <div className="flex gap-10 text-center">
+        <div className="flex gap-10 text-center mt-4">
           <button onClick={() => setModalType("followers")}>
             <p className="text-xl font-bold cursor-pointer">120</p>
             <span className="uppercase text-xs tracking-widest">Followers</span>
