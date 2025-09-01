@@ -205,8 +205,9 @@ export default function PostDetail() {
     const content = editingText.trim();
     if (!content) return;
     try {
-      await axiosClient.put(`/posts/${commentId}/comments`, { content });
+      await axiosClient.put(`/posts/${commentId}/comments`, { "content": content }); // ✅ correct endpoint
       toast.success("Comment updated");
+
       setComments((c) =>
         c.map((cm) => (cm.id === commentId ? { ...cm, content } : cm))
       );
@@ -217,13 +218,15 @@ export default function PostDetail() {
     }
   };
 
+  // Delete comment
   const deleteComment = async (commentId) => {
     const prev = comments;
     try {
       setComments((c) => c.filter((cm) => cm.id !== commentId));
-      await axiosClient.delete(`/posts/${commentId}/comments`);
+      await axiosClient.delete(`/posts/${commentId}/comments`); // ✅ correct endpoint
       toast.success("Comment deleted");
     } catch (e) {
+      console.error(e);
       toast.error("Failed to delete comment");
       setComments(prev); // rollback
     }
