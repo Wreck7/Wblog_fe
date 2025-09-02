@@ -1,6 +1,6 @@
 // src/pages/PostDetail.jsx
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Bookmark,
@@ -16,8 +16,10 @@ import toast from "react-hot-toast";
 import axiosClient from "../../utils/axiosClient"; // adjust path if needed
 import useAuthStore from "../../store/authStore";
 
+
 export default function PostDetail() {
   const { id } = useParams();
+  const navigate = useNavigate()
 
   // post
   const [post, setPost] = useState(null);
@@ -252,6 +254,7 @@ export default function PostDetail() {
   const content = post.content;
   const cover = post.cover_image_url;
   const author = post.profiles?.username || "Unknown";
+  const author_id = post.author_id
   const authorImage = post.profiles?.image_url || "https://i.pravatar.cc/50";
   const date = new Date(post.created_at || Date.now()).toLocaleDateString();
 
@@ -272,6 +275,7 @@ export default function PostDetail() {
             <img
               src={authorImage}
               alt={author}
+              onClick={() => navigate(`/profile/${author_id}`)}
               className="w-10 h-10 rounded-full border-2 border-stone-800 shadow-sm"
             />
             <div>

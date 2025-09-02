@@ -12,6 +12,7 @@ import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import "./App.css";
 import PostDetail from "./pages/Posts/PostDetail";
+import OthersProfile from "./pages/OthersProfile";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:user_id" element={<OthersProfile />} />
           <Route path="/posts" element={<PostList />} />
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/post/create" element={<CreatePost />} />
