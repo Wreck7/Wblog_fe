@@ -16,7 +16,28 @@ export default function OthersProfile() {
   const [loading, setLoading] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [bookmarks, setBookmarks] = useState([]); // 👈 add state
+
+  const fetchFollowData = async () => {
+    try {
+      const [followersRes, followingRes] = await Promise.all([
+        axiosClient.get(`/users/${user_id}/followers`),
+        axiosClient.get(`/users/${user_id}/following`),
+      ]);
+
+      setFollowers(followersRes.data?.followers || []);
+      setFollowing(followingRes.data?.following || []);
+    } catch (err) {
+      console.error("Failed to fetch followers/following:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user_id) {
+      fetchFollowData();
+    }
+  }, [user_id]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -34,6 +55,42 @@ export default function OthersProfile() {
     };
     if (user_id) fetchProfile();
   }, [user_id]);
+
+  // fetch followers and following on mount / when user_id changes
+  useEffect(() => {
+    if (!user_id) return;
+
+    const fetchFollowData = async () => {
+      try {
+        const [followersRes, followingRes] = await Promise.all([
+          axiosClient.get(`/users/${user_id}/followers`),
+          axiosClient.get(`/users/${user_id}/following`),
+        ]);
+
+        setFollowers(followersRes.data?.followers || []);
+        setFollowing(followingRes.data?.following || []);
+      } catch (err) {
+        console.error("Failed to fetch followers/following:", err);
+      }
+    };
+
+    fetchFollowData();
+  }, [user_id]);
+
+  // fetch posts
+  useEffect(() => {
+    if (activeTab === "posts" && user_id) {
+      const fetchPosts = async () => {
+        try {
+          const { data } = await axiosClient.get(`/posts/all/${user_id}`);
+          setPosts(data?.posts || []);
+        } catch (err) {
+          console.error("Failed to fetch posts:", err);
+        }
+      };
+      fetchPosts();
+    }
+  }, [activeTab, user_id]);
 
   // fetch bookmarks
   useEffect(() => {
@@ -61,6 +118,9 @@ export default function OthersProfile() {
         await axiosClient.post(`/users/${user_id}/follow`);
         setIsFollowing(true);
       }
+
+      // 👇 Refresh followers/following count after action
+      await fetchFollowData();
     } catch (err) {
       console.error("Follow/Unfollow failed:", err);
     } finally {
@@ -68,19 +128,8 @@ export default function OthersProfile() {
     }
   };
 
-  const openModal = async (type) => {
-    try {
-      if (type === "followers") {
-        const { data } = await axiosClient.get(`/users/${user_id}/followers`);
-        setFollowers(data?.followers || []);
-      } else {
-        const { data } = await axiosClient.get(`/users/${user_id}/following`);
-        setFollowing(data?.following || []);
-      }
-      setModalType(type);
-    } catch (err) {
-      console.error("Failed to fetch modal data:", err);
-    }
+  const openModal = (type) => {
+    setModalType(type);
   };
 
   return (
@@ -171,9 +220,24 @@ export default function OthersProfile() {
               transition={{ duration: 0.3 }}
               className="col-span-full grid gap-8 md:grid-cols-2 lg:grid-cols-3"
             >
-              <p className="col-span-full text-center italic">
-                Posts will appear here...
-              </p>
+              {posts.length > 0 ? (
+                posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    id={post.id}
+                    title={post.title}
+                    excerpt={post.content.slice(0, 100) + "..."}
+                    coverImage={post.cover_image_url}
+                    author={post.profiles.username}
+                    authorImage={post.profiles.image_url}
+                    category={null}
+                  />
+                ))
+              ) : (
+                <p className="col-span-full text-center italic">
+                  No posts yet...
+                </p>
+              )}
             </motion.div>
           )}
 
