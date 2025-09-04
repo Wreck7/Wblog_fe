@@ -16,10 +16,9 @@ import toast from "react-hot-toast";
 import axiosClient from "../../utils/axiosClient"; // adjust path if needed
 import useAuthStore from "../../store/authStore";
 
-
 export default function PostDetail() {
   const { id } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // post
   const [post, setPost] = useState(null);
@@ -40,6 +39,14 @@ export default function PostDetail() {
   const [editingText, setEditingText] = useState("");
 
   const postId = useMemo(() => id, [id]);
+
+  // Edit post
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  // const [editCategory, setEditCategory] = useState("");
+  const [editFile, setEditFile] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // Share
   const handleShare = () => {
@@ -167,6 +174,44 @@ export default function PostDetail() {
       toast.error("Failed to update bookmark");
     }
   };
+  // post delete logic
+  const handleDeletePost = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      await axiosClient.delete(`/posts/${postId}`);
+      toast.success("Post deleted successfully");
+      navigate("/posts"); // redirect to home or posts list
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to delete post");
+    }
+  };
+
+  // post update logic
+  const handleUpdatePost = async () => {
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      if (editTitle) formData.append("title", editTitle);
+      if (editContent) formData.append("content", editContent);
+      // if (editCategory) formData.append("category_id", editCategory);
+      if (editFile) formData.append("file", editFile);
+
+      const { data } = await axiosClient.put(`/posts/${postId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Post updated");
+      setPost(data.res); // update local state
+      setIsEditing(false);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to update post");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Add new comment
   const addComment = async () => {
@@ -207,7 +252,9 @@ export default function PostDetail() {
     const content = editingText.trim();
     if (!content) return;
     try {
-      await axiosClient.put(`/posts/${commentId}/comments`, { "content": content }); // ✅ correct endpoint
+      await axiosClient.put(`/posts/${commentId}/comments`, {
+        content: content,
+      }); // ✅ correct endpoint
       toast.success("Comment updated");
 
       setComments((c) =>
@@ -254,7 +301,7 @@ export default function PostDetail() {
   const content = post.content;
   const cover = post.cover_image_url;
   const author = post.profiles?.username || "Unknown";
-  const author_id = post.author_id
+  const author_id = post.author_id;
   const authorImage = post.profiles?.image_url || "https://i.pravatar.cc/50";
   const date = new Date(post.created_at || Date.now()).toLocaleDateString();
 
@@ -284,6 +331,32 @@ export default function PostDetail() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {author_id === useAuthStore.getState().user.user.id && (
+              <>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    setEditTitle(title);
+                    setEditContent(content);
+                    // setEditCategory(post.category_id || "");
+                    setIsEditing(true);
+                  }}
+                  className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-yellow-100 hover:bg-yellow-200"
+                  aria-label="Edit Post"
+                >
+                  <PencilLine className="w-5 h-5 text-yellow-600" />
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleDeletePost}
+                  className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-red-100 hover:bg-red-200"
+                  aria-label="Delete Post"
+                >
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </motion.button>
+              </>
+            )}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={toggleLike}
@@ -473,6 +546,119 @@ export default function PostDetail() {
           </div>
         </div>
       </div>
+      {/* {isEditing && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-lg border-2 border-stone-800">
+            <h2 className="text-xl font-bold mb-4">Edit Post</h2>
+
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Title"
+              className="w-full p-2 mb-3 border-2 border-stone-800"
+            />
+
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              rows={5}
+              placeholder="Content"
+              className="w-full p-2 mb-3 border-2 border-stone-800"
+            />
+
+
+            <input
+              type="file"
+              onChange={(e) => setEditFile(e.target.files[0])}
+              className="mb-3"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 border-2 border-stone-800 bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdatePost}
+                disabled={saving}
+                className="px-4 py-2 border-2 border-stone-800 bg-yellow-300"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
+      {/* Retro Edit Modal */}
+{isEditing && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="relative bg-[#FAF3E0] border-4 border-stone-800 shadow-[10px_10px_0px_#000] w-[90%] max-w-xl p-8 font-serif"
+    >
+      {/* Aged paper overlay */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-25 mix-blend-multiply pointer-events-none"></div>
+
+      {/* Title */}
+      <h2 className="relative text-3xl font-extrabold uppercase mb-6 tracking-wider text-center">
+        ✍️ Edit Post
+      </h2>
+
+      {/* Title input */}
+      <input
+        type="text"
+        value={editTitle}
+        onChange={(e) => setEditTitle(e.target.value)}
+        placeholder="Post Title"
+        className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
+      />
+
+      {/* Content textarea */}
+      <textarea
+        value={editContent}
+        onChange={(e) => setEditContent(e.target.value)}
+        rows={6}
+        placeholder="Write your story..."
+        className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
+      />
+
+      {/* File input */}
+      <label className="block mb-4 cursor-pointer font-semibold uppercase text-sm tracking-wider">
+        <span className="block mb-1">Update Cover Image</span>
+        <input
+          type="file"
+          onChange={(e) => setEditFile(e.target.files[0])}
+          className="block w-full text-sm border-2 border-stone-800 p-2 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] cursor-pointer"
+        />
+      </label>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-4 mt-6">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsEditing(false)}
+          className="px-5 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] uppercase font-bold tracking-wider hover:translate-x-1 hover:-translate-y-1 transition-transform"
+        >
+          Cancel
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={handleUpdatePost}
+          disabled={saving}
+          className="px-6 py-2 border-2 border-stone-800 bg-yellow-300 shadow-[4px_4px_0px_#000] uppercase font-bold tracking-widest hover:translate-x-1 hover:-translate-y-1 transition-transform disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Save"}
+        </motion.button>
+      </div>
+    </motion.div>
+  </div>
+)}
+
     </motion.section>
   );
 }
