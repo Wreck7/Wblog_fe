@@ -2,30 +2,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "./Posts/PostCard";
-import defaultAvatar from "../assets/default-avatar.jpg"; // ✅ correct name
-import axiosClient from "../utils/axiosClient"; // adjust path if needed
-
-const dummyPosts = [
-  { title: "Retro Post 1", excerpt: "Lorem ipsum dolor sit amet..." },
-  { title: "Retro Post 2", excerpt: "Vintage vibes meet modern code..." },
-];
-
-const dummyBookmarks = [
-  { title: "Bookmarked Post A", excerpt: "Saved for later reading..." },
-  { title: "Bookmarked Post B", excerpt: "Classic retro blog vibes..." },
-];
-
-const dummyUsers = [
-  { name: "Alice Retro", img: "https://i.pravatar.cc/100?img=11" },
-  { name: "Bob Vintage", img: "https://i.pravatar.cc/100?img=12" },
-  { name: "Charlie Oldskool", img: "https://i.pravatar.cc/100?img=13" },
-];
+import defaultAvatar from "../assets/default-avatar.jpg";
+import axiosClient from "../utils/axiosClient";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("posts");
   const [modalType, setModalType] = useState(null);
   const [user, setUser] = useState(null);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [bookmarks, setBookmarks] = useState([]);
 
+  // fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -40,6 +29,56 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
+  // fetch followers/following (always fresh)
+  const fetchFollowData = async () => {
+    try {
+      const [followersRes, followingRes] = await Promise.all([
+        axiosClient.get(`/users/${user?.id}/followers`),
+        axiosClient.get(`/users/${user?.id}/following`),
+      ]);
+      setFollowers(followersRes.data?.followers || []);
+      setFollowing(followingRes.data?.following || []);
+    } catch (err) {
+      console.error("Failed to fetch followers/following:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchFollowData();
+    }
+  }, [user?.id]);
+
+  // fetch posts
+  useEffect(() => {
+    if (activeTab === "posts" && user?.id) {
+      const fetchPosts = async () => {
+        try {
+          const { data } = await axiosClient.get(`/posts/all/${user.id}`);
+          setPosts(data?.posts || []);
+        } catch (err) {
+          console.error("Failed to fetch posts:", err);
+        }
+      };
+      fetchPosts();
+    }
+  }, [activeTab, user?.id]);
+
+  // fetch bookmarks
+  useEffect(() => {
+    if (activeTab === "bookmarks") {
+      const fetchBookmarks = async () => {
+        try {
+          const { data } = await axiosClient.get("/bookmarks");
+          setBookmarks(data?.bookmarks || []);
+        } catch (err) {
+          console.error("Failed to fetch bookmarks:", err);
+        }
+      };
+      fetchBookmarks();
+    }
+  }, [activeTab]);
+
   return (
     <div className="min-h-screen bg-[#FDF6E3] p-8 font-serif">
       {/* Profile Header */}
@@ -50,13 +89,9 @@ export default function Profile() {
         className="flex flex-col items-center border-4 border-stone-800 bg-[#FAF3E0] shadow-[6px_6px_0px_#000] p-6 rounded-lg mb-10 relative"
       >
         <img
-          src={
-            user?.image_url ||
-            // "https://i.pravatar.cc/150?img=8"
-            defaultAvatar
-          }
+          src={user?.image_url || defaultAvatar}
           alt="Profile"
-          className="w-28 h-28 rounded-full border-4 border-stone-800 shadow-[4px_4px_0px_#000] mb-4"
+          className="w-28 h-28 rounded-full border-4 border-stone-800 shadow-[4px_4px_0px_#000] mb-4 object-cover"
         />
         <h2 className="text-3xl font-extrabold uppercase mb-1 tracking-widest">
           {user?.username || "Loading..."}
@@ -68,11 +103,13 @@ export default function Profile() {
         {/* Followers & Following */}
         <div className="flex gap-10 text-center">
           <button onClick={() => setModalType("followers")}>
-            <p className="text-xl font-bold cursor-pointer">120</p>
+            <p className="text-xl font-bold cursor-pointer">
+              {followers.length}
+            </p>
             <span className="uppercase text-xs tracking-widest">Followers</span>
           </button>
           <button onClick={() => setModalType("following")}>
-            <p className="text-xl font-bold">89</p>
+            <p className="text-xl font-bold">{following.length}</p>
             <span className="uppercase text-xs tracking-widest">Following</span>
           </button>
         </div>
@@ -117,9 +154,24 @@ export default function Profile() {
               transition={{ duration: 0.3 }}
               className="col-span-full grid gap-8 md:grid-cols-2 lg:grid-cols-3"
             >
-              {dummyPosts.map((p, i) => (
-                <PostCard key={i} title={p.title} excerpt={p.excerpt} />
-              ))}
+              {posts.length > 0 ? (
+                posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    id={post.id}
+                    title={post.title}
+                    excerpt={post.content.slice(0, 100) + "..."}
+                    coverImage={post.cover_image_url}
+                    author={post.profiles.username}
+                    authorImage={post.profiles.image_url}
+                    category={null}
+                  />
+                ))
+              ) : (
+                <p className="col-span-full text-center italic">
+                  No posts yet...
+                </p>
+              )}
             </motion.div>
           )}
 
@@ -132,15 +184,33 @@ export default function Profile() {
               transition={{ duration: 0.3 }}
               className="col-span-full grid gap-8 md:grid-cols-2 lg:grid-cols-3"
             >
-              {dummyBookmarks.map((b, i) => (
-                <PostCard key={i} title={b.title} excerpt={b.excerpt} />
-              ))}
+              {bookmarks.length > 0 ? (
+                bookmarks.map((bm) => {
+                  const post = bm.posts;
+                  return (
+                    <PostCard
+                      key={post.id}
+                      id={post.id}
+                      title={post.title}
+                      excerpt={post.content.slice(0, 100) + "..."}
+                      coverImage={post.cover_image_url}
+                      author={post.profiles.username}
+                      authorImage={post.profiles.image_url}
+                      category={null}
+                    />
+                  );
+                })
+              ) : (
+                <p className="col-span-full text-center italic">
+                  No bookmarks yet...
+                </p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Modal */}
+      {/* Modal (followers/following) */}
       <AnimatePresence>
         {modalType && (
           <motion.div
@@ -161,19 +231,22 @@ export default function Profile() {
               </h3>
 
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                {dummyUsers.map((u, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 border-b border-stone-300 pb-2"
-                  >
-                    <img
-                      src={u.img}
-                      alt={u.name}
-                      className="w-10 h-10 rounded-full border-2 border-stone-800"
-                    />
-                    <span className="font-semibold">{u.name}</span>
-                  </div>
-                ))}
+                {(modalType === "followers" ? followers : following).map((u) => {
+                  const profile = u.profiles;
+                  return (
+                    <div
+                      key={u.follower_id || u.following_id}
+                      className="flex items-center gap-3 border-b border-stone-300 pb-2"
+                    >
+                      <img
+                        src={profile?.image_url || defaultAvatar}
+                        alt={profile?.username}
+                        className="w-10 h-10 rounded-full border-2 border-stone-800 object-cover"
+                      />
+                      <span className="font-semibold">{profile?.username}</span>
+                    </div>
+                  );
+                })}
               </div>
 
               <button
