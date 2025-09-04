@@ -7,7 +7,7 @@ export default function CategorySelect({ value, onChange }) {
   useEffect(() => {
     // Fetch categories from backend
     axios
-      .get("http://localhost:8000/categories") // adjust to your backend URL
+      .get("http://localhost:7000/categories") // adjust to your backend URL
       .then((res) => {
         setCategories(res.data.categories);
       })

@@ -1,11 +1,13 @@
 // src/pages/Profile.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "./Posts/PostCard";
 import defaultAvatar from "../assets/default-avatar.jpg";
 import axiosClient from "../utils/axiosClient";
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("posts");
   const [modalType, setModalType] = useState(null);
   const [user, setUser] = useState(null);
@@ -212,53 +214,65 @@ export default function Profile() {
 
       {/* Modal (followers/following) */}
       <AnimatePresence>
-        {modalType && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="bg-[#FAF3E0] border-4 border-stone-800 shadow-[6px_6px_0px_#000] p-6 rounded-lg w-80 relative"
-            >
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-widest">
-                {modalType === "followers" ? "Followers" : "Following"}
-              </h3>
-
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                {(modalType === "followers" ? followers : following).map((u) => {
-                  const profile = u.profiles;
-                  return (
-                    <div
-                      key={u.follower_id || u.following_id}
-                      className="flex items-center gap-3 border-b border-stone-300 pb-2"
-                    >
-                      <img
-                        src={profile?.image_url || defaultAvatar}
-                        alt={profile?.username}
-                        className="w-10 h-10 rounded-full border-2 border-stone-800 object-cover"
-                      />
-                      <span className="font-semibold">{profile?.username}</span>
+              {modalType && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                >
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0.8 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="bg-[#FAF3E0] border-4 border-stone-800 shadow-[6px_6px_0px_#000] p-6 rounded-lg w-80 relative"
+                  >
+                    <h3 className="text-xl font-bold mb-4 uppercase tracking-widest">
+                      {modalType === "followers" ? "Followers" : "Following"}
+                    </h3>
+      
+                    <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                      {(modalType === "followers" ? followers : following).map(
+                        (u) => {
+                          const profile = u.profiles;
+                          return (
+                            <div
+                              key={u.follower_id || u.following_id}
+                              className="flex items-center gap-3 border-b border-stone-300 pb-2 cursor-pointer hover:bg-stone-200 transition"
+                              onClick={() => {
+                                setModalType(null);
+                                navigate(
+                                  `/profile/${
+                                    profile?.id || u.follower_id || u.following_id
+                                  }`
+                                );
+                              }}
+                            >
+                              <img
+                                src={profile?.image_url || defaultAvatar}
+                                alt={profile?.username}
+                                className="w-10 h-10 rounded-full border-2 border-stone-800 object-cover"
+                              />
+                              <span className="font-semibold">
+                                {profile?.username}
+                              </span>
+                            </div>
+                          );
+                        }
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => setModalType(null)}
-                className="absolute top-2 right-2 border-2 border-stone-800 px-2 py-1 bg-stone-800 text-[#FAF3E0] font-bold shadow-[2px_2px_0px_#000]"
-              >
-                ✕
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
+                    <button
+                      onClick={() => setModalType(null)}
+                      className="absolute top-2 right-2 border-2 border-stone-800 px-2 py-1 bg-stone-800 text-[#FAF3E0] font-bold shadow-[2px_2px_0px_#000]"
+                    >
+                      ✕
+                    </button>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
     </div>
   );
 }

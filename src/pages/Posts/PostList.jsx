@@ -71,7 +71,7 @@ export default function Feed() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("http://localhost:8000/categories");
+        const res = await fetch("http://localhost:7000/categories");
         const data = await res.json();
         setCategories(data.categories || []);
       } catch (err) {
@@ -87,8 +87,8 @@ export default function Feed() {
       try {
         let url =
           selectedCategory === "all"
-            ? "http://localhost:8000/posts"
-            : `http://localhost:8000/feed?category_id=${selectedCategory}`;
+            ? "http://localhost:7000/posts"
+            : `http://localhost:7000/feed?category_id=${selectedCategory}`;
 
         const res = await fetch(url);
         const data = await res.json();
