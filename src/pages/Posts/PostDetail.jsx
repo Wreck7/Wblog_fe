@@ -318,11 +318,13 @@ export default function PostDetail() {
       <div className="relative max-w-3xl mx-auto border-4 border-stone-800 bg-[#FDF6E3] shadow-[10px_10px_0px_#000] p-10">
         {/* Author + Actions bar */}
         <div className="flex items-center justify-between border-b-2 border-stone-800 pb-3 mb-6">
-          <div className="flex items-center gap-4 mb-6 border-2 border-stone-800 bg-[#FAF3E0] px-4 py-2 shadow-[4px_4px_0px_#000]">
+          <div
+            onClick={() => navigate(`/profile/${author_id}`)}
+            className="flex items-center gap-4 mb-6 border-2 border-stone-800 bg-[#FAF3E0] px-4 py-2 shadow-[4px_4px_0px_#000] cursor-pointer"
+          >
             <img
               src={authorImage}
               alt={author}
-              onClick={() => navigate(`/profile/${author_id}`)}
               className="w-10 h-10 rounded-full border-2 border-stone-800 shadow-sm"
             />
             <div>
@@ -546,119 +548,73 @@ export default function PostDetail() {
           </div>
         </div>
       </div>
-      {/* {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-lg border-2 border-stone-800">
-            <h2 className="text-xl font-bold mb-4">Edit Post</h2>
 
+      {/* Retro Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="relative bg-[#FAF3E0] border-4 border-stone-800 shadow-[10px_10px_0px_#000] w-[90%] max-w-xl p-8 font-serif"
+          >
+            {/* Aged paper overlay */}
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-25 mix-blend-multiply pointer-events-none"></div>
+
+            {/* Title */}
+            <h2 className="relative text-3xl font-extrabold uppercase mb-6 tracking-wider text-center">
+              ✍️ Edit Post
+            </h2>
+
+            {/* Title input */}
             <input
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Title"
-              className="w-full p-2 mb-3 border-2 border-stone-800"
+              placeholder="Post Title"
+              className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
             />
 
+            {/* Content textarea */}
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              rows={5}
-              placeholder="Content"
-              className="w-full p-2 mb-3 border-2 border-stone-800"
+              rows={6}
+              placeholder="Write your story..."
+              className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
             />
 
+            {/* File input */}
+            <label className="block mb-4 cursor-pointer font-semibold uppercase text-sm tracking-wider">
+              <span className="block mb-1">Update Cover Image</span>
+              <input
+                type="file"
+                onChange={(e) => setEditFile(e.target.files[0])}
+                className="block w-full text-sm border-2 border-stone-800 p-2 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] cursor-pointer"
+              />
+            </label>
 
-            <input
-              type="file"
-              onChange={(e) => setEditFile(e.target.files[0])}
-              className="mb-3"
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 mt-6">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 border-2 border-stone-800 bg-gray-200"
+                className="px-5 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] uppercase font-bold tracking-wider hover:translate-x-1 hover:-translate-y-1 transition-transform"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={handleUpdatePost}
                 disabled={saving}
-                className="px-4 py-2 border-2 border-stone-800 bg-yellow-300"
+                className="px-6 py-2 border-2 border-stone-800 bg-yellow-300 shadow-[4px_4px_0px_#000] uppercase font-bold tracking-widest hover:translate-x-1 hover:-translate-y-1 transition-transform disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save"}
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
-      )} */}
-      {/* Retro Edit Modal */}
-{isEditing && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-    <motion.div
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="relative bg-[#FAF3E0] border-4 border-stone-800 shadow-[10px_10px_0px_#000] w-[90%] max-w-xl p-8 font-serif"
-    >
-      {/* Aged paper overlay */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-25 mix-blend-multiply pointer-events-none"></div>
-
-      {/* Title */}
-      <h2 className="relative text-3xl font-extrabold uppercase mb-6 tracking-wider text-center">
-        ✍️ Edit Post
-      </h2>
-
-      {/* Title input */}
-      <input
-        type="text"
-        value={editTitle}
-        onChange={(e) => setEditTitle(e.target.value)}
-        placeholder="Post Title"
-        className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
-      />
-
-      {/* Content textarea */}
-      <textarea
-        value={editContent}
-        onChange={(e) => setEditContent(e.target.value)}
-        rows={6}
-        placeholder="Write your story..."
-        className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
-      />
-
-      {/* File input */}
-      <label className="block mb-4 cursor-pointer font-semibold uppercase text-sm tracking-wider">
-        <span className="block mb-1">Update Cover Image</span>
-        <input
-          type="file"
-          onChange={(e) => setEditFile(e.target.files[0])}
-          className="block w-full text-sm border-2 border-stone-800 p-2 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] cursor-pointer"
-        />
-      </label>
-
-      {/* Buttons */}
-      <div className="flex justify-end gap-4 mt-6">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsEditing(false)}
-          className="px-5 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] uppercase font-bold tracking-wider hover:translate-x-1 hover:-translate-y-1 transition-transform"
-        >
-          Cancel
-        </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleUpdatePost}
-          disabled={saving}
-          className="px-6 py-2 border-2 border-stone-800 bg-yellow-300 shadow-[4px_4px_0px_#000] uppercase font-bold tracking-widest hover:translate-x-1 hover:-translate-y-1 transition-transform disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save"}
-        </motion.button>
-      </div>
-    </motion.div>
-  </div>
-)}
-
+      )}
     </motion.section>
   );
 }

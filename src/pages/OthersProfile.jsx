@@ -12,12 +12,26 @@ export default function OthersProfile() {
   const [activeTab, setActiveTab] = useState("posts");
   const [modalType, setModalType] = useState(null);
   const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // 👈 add state for logged-in user
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [bookmarks, setBookmarks] = useState([]); // 👈 add state
+  const [bookmarks, setBookmarks] = useState([]);
+
+  // ✅ Fetch current logged-in user once
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const { data } = await axiosClient.get("/auth/me"); // or wherever you get current user
+        if (data?.user) setCurrentUser(data.user);
+      } catch (err) {
+        console.error("Failed to fetch current user:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   const fetchFollowData = async () => {
     try {
@@ -46,15 +60,20 @@ export default function OthersProfile() {
         if (data?.res) {
           setUser(data.res);
 
-          const check = await axiosClient.get(`/users/${user_id}/is-following`);
-          setIsFollowing(check.data?.is_following || false);
+          // Only check following if profile ≠ current user
+          if (currentUser?.id !== user_id) {
+            const check = await axiosClient.get(
+              `/users/${user_id}/is-following`
+            );
+            setIsFollowing(check.data?.is_following || false);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       }
     };
     if (user_id) fetchProfile();
-  }, [user_id]);
+  }, [user_id, currentUser]);
 
   // fetch followers and following on mount / when user_id changes
   useEffect(() => {
@@ -152,7 +171,7 @@ export default function OthersProfile() {
         {user?.bio && <p className="italic text-stone-700 mb-3">{user.bio}</p>}
 
         {/* Follow / Unfollow button */}
-        {user && (
+        {user && currentUser?.id !== user?.id && (
           <button
             onClick={handleFollowToggle}
             disabled={loading}
