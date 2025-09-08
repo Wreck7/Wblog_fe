@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const [scrollY, setScrollY] = useState(0);
@@ -139,6 +140,29 @@ export default function Dashboard() {
     fetchUser();
   }, [setUser]);
 
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.15, // stagger reveal per card
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 160, damping: 18 },
+    },
+    hover: {
+      scale: 1.03,
+      rotate: -1,
+      transition: { type: "spring", stiffness: 260, damping: 14 },
+    },
+  };
+
   return (
     <div className="min-h-screen bg-[#FDF6E3] text-stone-700 font-serif overflow-x-hidden">
       {/* Floating Background Elements */}
@@ -168,7 +192,7 @@ export default function Dashboard() {
       {/* Hero Section */}
       <section
         id="hero"
-        className="relative min-h-screen flex items-center justify-center pt-20"
+        className="relative min-h-screen flex items-center justify-center pt-10"
         style={{ transform: `translateY(${scrollY * 0.1}px)` }}
       >
         <div className="text-center max-w-6xl mx-auto px-6">
@@ -193,13 +217,17 @@ export default function Dashboard() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <a href="/post/create"><button className="group bg-stone-700 text-stone-100 cursor-pointer px-8 py-4 rounded-full text-lg font-semibold hover:bg-stone-800 transition-all transform hover:scale-105 hover:shadow-2xl flex items-center">
-              Start Your Story
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button></a>
-            <a href="/posts"><button className="border-2 border-stone-700 text-stone-700 cursor-pointer px-8 py-4 rounded-full text-lg font-semibold hover:bg-stone-700 hover:text-stone-100 transition-all transform hover:scale-105">
-              Explore Stories
-            </button></a>
+            <a href="/post/create">
+              <button className="group bg-stone-700 text-stone-100 cursor-pointer px-8 py-4 rounded-full text-lg font-semibold hover:bg-stone-800 transition-all transform hover:scale-105 hover:shadow-2xl flex items-center">
+                Start Your Story
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </a>
+            <a href="/posts">
+              <button className="border-2 border-stone-700 text-stone-700 cursor-pointer px-8 py-4 rounded-full text-lg font-semibold hover:bg-stone-700 hover:text-stone-100 transition-all transform hover:scale-105">
+                Explore Stories
+              </button>
+            </a>
           </div>
 
           <div className="animate-bounce">
@@ -219,15 +247,17 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Featured Stories Section */}
+      {/* Featured Stories */}
       <section id="stories" className="py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              isVisible.stories
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
+          {/* Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={
+              isVisible.stories ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
           >
             <h2 className="text-5xl font-bold text-stone-800 mb-6">
               Featured Stories
@@ -236,49 +266,64 @@ export default function Dashboard() {
               Discover tales that transport you to different worlds, crafted by
               our community of passionate storytellers
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Cards */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate={isVisible.stories ? "visible" : "hidden"}
+            className="grid md:grid-cols-3 gap-10"
+          >
             {stories.map((story, index) => (
-              <div
+              <motion.article
                 key={index}
-                className={`group bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 hover:border-stone-400 transition-all duration-500 hover:shadow-2xl hover:transform hover:scale-105 cursor-pointer ${
-                  isVisible.stories
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
-                }`}
-                style={{ transitionDelay: `${index * 200}ms` }}
+                variants={cardVariants}
+                whileHover="hover"
+                className="relative border-4 border-stone-800 bg-[#FAF3E0] shadow-[6px_6px_0px_#000] font-serif cursor-pointer group flex flex-col min-h-[300px] p-6 transform-gpu will-change-transform"
+                style={{ transformOrigin: "center center" }}
               >
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-stone-600 font-medium">
-                      {story.author}
-                    </span>
-                    <div className="flex items-center text-stone-600">
-                      <Star className="w-4 h-4 mr-1 fill-current" />
-                      <span className="text-sm">{story.likes}</span>
-                    </div>
+                {/* Author + Likes */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
+                    {story.author}
+                  </span>
+                  <div className="flex items-center text-stone-800">
+                    <Star className="w-4 h-4 mr-1 fill-current" />
+                    <span className="text-xs font-semibold">{story.likes}</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-stone-800 mb-4 group-hover:text-stone-600 transition-colors">
-                    {story.title}
-                  </h3>
-                  <p className="text-stone-700 leading-relaxed mb-6">
-                    {story.excerpt}
-                  </p>
                 </div>
-                <div className="flex items-center justify-between text-sm text-stone-600">
-                  <div className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
+
+                {/* Title */}
+                <h3 className="text-2xl font-extrabold uppercase mb-3 tracking-wide group-hover:underline">
+                  {story.title}
+                </h3>
+
+                {/* Excerpt */}
+                <p className="text-stone-700 text-sm leading-relaxed mb-6 line-clamp-3">
+                  {story.excerpt}
+                </p>
+
+                {/* Footer row */}
+                <div className="mt-auto flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-800">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
                     <span>{story.readTime}</span>
                   </div>
                   <span>{story.date}</span>
                 </div>
-              </div>
+
+                {/* Old paper overlay */}
+                <div
+                  className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-20 pointer-events-none mix-blend-multiply"
+                  aria-hidden
+                />
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
-
+      
       {/* Features Section */}
       <section
         id="features"
@@ -356,8 +401,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-
-
       {/* Testimonials Section */}
       <section className="py-20 bg-stone-50">
         <div className="max-w-7xl mx-auto px-6">
@@ -377,14 +420,12 @@ export default function Dashboard() {
                 role: "Romance Novelist",
                 quote:
                   "InkSpire brought back my love for writing. The vintage editor feels like writing on my grandmother's typewriter, but with all the modern conveniences I need.",
-                
               },
               {
                 name: "David Chen",
                 role: "Fantasy Author",
                 quote:
                   "The community here is incredible. I've received more meaningful feedback in a month than I did in years on other platforms. My writing has improved dramatically.",
-                
               },
               {
                 name: "Maria Rodriguez",
@@ -397,7 +438,6 @@ export default function Dashboard() {
                 key={index}
                 className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 hover:border-stone-400 transition-all duration-300 hover:shadow-xl"
               >
-
                 <p className="text-stone-700 leading-relaxed mb-6 italic">
                   "{testimonial.quote}"
                 </p>
