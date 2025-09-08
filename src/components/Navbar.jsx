@@ -16,7 +16,7 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 80 }}
-      className="flex justify-between items-center px-6 md:px-8 py-5 border-b-[3px] border-stone-700 bg-[#FAF3E0] shadow-[4px_4px_0px_#000000] font-serif relative"
+      className="flex justify-between items-center px-6 md:px-8 py-5 border-b-[1px] border-stone-700 bg-[#FAF3E0] shadow-[4px_4px_0px_#000000] font-serif relative z-[100]"
     >
       {/* Logo */}
       <motion.h1
@@ -33,7 +33,8 @@ export default function Navbar() {
       <div className="hidden md:flex gap-8 text-sm font-bold uppercase tracking-widest items-center">
         {[
           { to: "/posts", label: "Posts" },
-          { to: "/#about", label: "About Us" },
+          { to: "/post/create", label: "Write" },
+          // { to: "/#about", label: "About Us" },
           ...(!user
             ? [
                 { to: "/login", label: "Login" },
@@ -89,8 +90,9 @@ export default function Navbar() {
           className="absolute top-full left-0 w-full bg-[#FAF3E0] border-t-2 border-stone-700 shadow-[4px_4px_0px_#000000] flex flex-col items-center gap-6 py-6 z-50 md:hidden"
         >
           {[
-            { to: "/posts", label: "Posts" },
-            { to: "/#about", label: "About Us" },
+            { to: "/posts", label: "Stories" },
+            { to: "/post/create", label: "Write" },
+            // { to: "/#about", label: "About Us" },
             ...(!user
               ? [
                   { to: "/login", label: "Login" },
