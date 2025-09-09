@@ -310,29 +310,33 @@ export default function PostDetail() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="min-h-screen px-6 py-10 bg-[#FAF3E0] border-t-8 border-b-8 border-transparent font-serif relative"
+      className="min-h-screen px-3 sm:px-6 py-6 sm:py-10 bg-[#FAF3E0] border-t-8 border-b-8 border-transparent font-serif relative"
     >
       {/* Overlay texture */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-30 mix-blend-multiply pointer-events-none"></div>
 
-      <div className="relative max-w-3xl mx-auto border-4 border-stone-800 bg-[#FDF6E3] shadow-[10px_10px_0px_#000] p-10">
+      <div className="relative max-w-3xl mx-auto border-4 border-stone-800 bg-[#FDF6E3] shadow-[10px_10px_0px_#000] p-4 sm:p-10">
         {/* Author + Actions bar */}
-        <div className="flex items-center justify-between border-b-2 border-stone-800 pb-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b-2 border-stone-800 pb-3 mb-6 gap-3">
           <div
             onClick={() => navigate(`/profile/${author_id}`)}
-            className="flex items-center gap-4 mb-6 border-2 border-stone-800 bg-[#FAF3E0] px-4 py-2 shadow-[4px_4px_0px_#000] cursor-pointer"
+            className="flex items-center gap-3 sm:gap-4 border-2 border-stone-800 bg-[#FAF3E0] px-3 sm:px-4 py-2 shadow-[4px_4px_0px_#000] cursor-pointer w-fit"
           >
             <img
               src={authorImage}
               alt={author}
-              className="w-10 h-10 rounded-full border-2 border-stone-800 shadow-sm"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-stone-800 shadow-sm"
             />
             <div>
-              <p className="font-bold text-stone-900">By {author}</p>
+              <p className="font-bold text-stone-900 text-sm sm:text-base">
+                By {author}
+              </p>
               <p className="text-xs text-stone-600">{date}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
             {author_id === useAuthStore.getState().user.user.id && (
               <>
                 <motion.button
@@ -340,13 +344,12 @@ export default function PostDetail() {
                   onClick={() => {
                     setEditTitle(title);
                     setEditContent(content);
-                    // setEditCategory(post.category_id || "");
                     setIsEditing(true);
                   }}
                   className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-yellow-100 hover:bg-yellow-200"
                   aria-label="Edit Post"
                 >
-                  <PencilLine className="w-5 h-5 text-yellow-600" />
+                  <PencilLine className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
                 </motion.button>
 
                 <motion.button
@@ -355,21 +358,24 @@ export default function PostDetail() {
                   className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-red-100 hover:bg-red-200"
                   aria-label="Delete Post"
                 >
-                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                 </motion.button>
               </>
             )}
+
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={toggleLike}
-              className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3] flex items-center gap-2"
+              className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3] flex items-center gap-1 sm:gap-2"
             >
               <Heart
-                className={`w-5 h-5 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${
                   liked ? "fill-red-600 text-red-600" : "text-stone-800"
                 }`}
               />
-              <span className="text-sm font-semibold">{likeCount}</span>
+              <span className="text-xs sm:text-sm font-semibold">
+                {likeCount}
+              </span>
             </motion.button>
 
             <motion.button
@@ -379,7 +385,7 @@ export default function PostDetail() {
               aria-label="Bookmark"
             >
               <Bookmark
-                className={`w-5 h-5 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${
                   bookmarked
                     ? "fill-stone-800 text-stone-800"
                     : "text-stone-800"
@@ -393,7 +399,7 @@ export default function PostDetail() {
               className="p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FDF6E3]"
               aria-label="Share"
             >
-              <Share2 className="w-5 h-5 text-stone-800" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-stone-800" />
             </motion.button>
           </div>
         </div>
@@ -403,7 +409,7 @@ export default function PostDetail() {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="text-4xl font-extrabold uppercase mb-6 tracking-wider"
+          className="text-2xl sm:text-4xl font-extrabold uppercase mb-4 sm:mb-6 tracking-wider"
         >
           {title}
         </motion.h1>
@@ -416,7 +422,7 @@ export default function PostDetail() {
             transition={{ delay: 0.25 }}
             src={cover}
             alt={title}
-            className="w-full max-h-[420px] object-cover border-4 border-stone-800 shadow-[6px_6px_0px_#000] mb-8"
+            className="w-full max-h-56 sm:max-h-[420px] object-cover border-4 border-stone-800 shadow-[6px_6px_0px_#000] mb-6 sm:mb-8"
           />
         )}
 
@@ -425,20 +431,22 @@ export default function PostDetail() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="prose prose-stone max-w-none text-stone-800 leading-relaxed text-lg mb-10"
+          className="prose prose-stone max-w-none text-stone-800 leading-relaxed text-base sm:text-lg mb-8 sm:mb-10"
         >
           <p className="whitespace-pre-wrap">{content}</p>
         </motion.div>
 
         {/* Comments Section */}
-        <div className="mt-10 border-t-2 border-stone-800 pt-6">
-          <h2 className="text-2xl font-bold mb-4 uppercase">Comments</h2>
+        <div className="mt-8 sm:mt-10 border-t-2 border-stone-800 pt-4 sm:pt-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 uppercase">
+            Comments
+          </h2>
 
           {/* Existing comments */}
           {loadingComments ? (
             <p className="text-stone-700">Loading comments…</p>
           ) : (
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-6">
               {comments.length === 0 && (
                 <p className="text-stone-600">Be the first to comment.</p>
               )}
@@ -449,7 +457,6 @@ export default function PostDetail() {
                 const avatar =
                   c.profiles?.image_url || "https://i.pravatar.cc/40";
 
-                // check ownership
                 const isOwner =
                   c.author_id === useAuthStore.getState().user.user.id;
 
@@ -459,32 +466,36 @@ export default function PostDetail() {
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="p-3 border-2 border-stone-800 bg-[#FFFDF5] shadow-[3px_3px_0px_#000]"
+                    className="p-2 sm:p-3 border-2 border-stone-800 bg-[#FFFDF5] shadow-[3px_3px_0px_#000]"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 sm:gap-3">
                       <img
                         src={avatar}
                         alt={displayUser}
-                        className="w-8 h-8 rounded-full border-2 border-stone-800"
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-stone-800"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="font-semibold text-sm">{displayUser}</p>
+                          <p className="font-semibold text-xs sm:text-sm">
+                            {displayUser}
+                          </p>
                           {isOwner && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 sm:gap-2">
                               {isEditing ? (
                                 <>
                                   <button
                                     onClick={() => saveEdit(c.id)}
                                     className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
                                   >
-                                    <Check className="w-4 h-4" /> Save
+                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                                    Save
                                   </button>
                                   <button
                                     onClick={cancelEdit}
                                     className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
                                   >
-                                    <X className="w-4 h-4" /> Cancel
+                                    <X className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                                    Cancel
                                   </button>
                                 </>
                               ) : (
@@ -493,13 +504,13 @@ export default function PostDetail() {
                                     onClick={() => startEdit(c)}
                                     className="px-2 py-1 border-2 border-stone-800 bg-[#FDF6E3] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
                                   >
-                                    <PencilLine className="w-4 h-4" /> Edit
+                                    <PencilLine className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
                                   </button>
                                   <button
                                     onClick={() => deleteComment(c.id)}
                                     className="px-2 py-1 border-2 border-stone-800 bg-[#FFF] shadow-[2px_2px_0px_#000] text-xs flex items-center gap-1"
                                   >
-                                    <Trash2 className="w-4 h-4" /> Delete
+                                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
                                   </button>
                                 </>
                               )}
@@ -513,10 +524,10 @@ export default function PostDetail() {
                             value={editingText}
                             onChange={(e) => setEditingText(e.target.value)}
                             rows={3}
-                            className="mt-2 w-full p-2 border-2 border-stone-800 bg-white shadow-[2px_2px_0px_#000] text-sm"
+                            className="mt-2 w-full p-2 border-2 border-stone-800 bg-white shadow-[2px_2px_0px_#000] text-xs sm:text-sm"
                           />
                         ) : (
-                          <p className="text-stone-700 mt-1">
+                          <p className="text-stone-700 mt-1 text-xs sm:text-sm">
                             {c.text || c.content}
                           </p>
                         )}
@@ -535,15 +546,15 @@ export default function PostDetail() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
-              className="flex-1 p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FFFDF5] focus:outline-none"
+              className="flex-1 p-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] bg-[#FFFDF5] focus:outline-none text-sm"
             />
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={addComment}
-              className="px-4 py-2.5 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] flex items-center gap-1"
+              className="px-3 sm:px-4 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] flex items-center gap-1 text-xs sm:text-sm"
             >
-              <Send className="w-4 h-4" />
-              <span className="text-sm">Post</span>
+              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>Post</span>
             </motion.button>
           </div>
         </div>
@@ -556,13 +567,13 @@ export default function PostDetail() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="relative bg-[#FAF3E0] border-4 border-stone-800 shadow-[10px_10px_0px_#000] w-[90%] max-w-xl p-8 font-serif"
+            className="relative bg-[#FAF3E0] border-4 border-stone-800 shadow-[10px_10px_0px_#000] w-[95%] sm:w-[90%] max-w-xl p-4 sm:p-8 font-serif"
           >
             {/* Aged paper overlay */}
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-25 mix-blend-multiply pointer-events-none"></div>
 
             {/* Title */}
-            <h2 className="relative text-3xl font-extrabold uppercase mb-6 tracking-wider text-center">
+            <h2 className="relative text-xl sm:text-3xl font-extrabold uppercase mb-4 sm:mb-6 tracking-wider text-center">
               ✍️ Edit Post
             </h2>
 
@@ -572,34 +583,34 @@ export default function PostDetail() {
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               placeholder="Post Title"
-              className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
+              className="w-full p-2 sm:p-3 mb-3 sm:mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2 text-sm sm:text-base"
             />
 
             {/* Content textarea */}
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              rows={6}
+              rows={5}
               placeholder="Write your story..."
-              className="w-full p-3 mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2"
+              className="w-full p-2 sm:p-3 mb-3 sm:mb-4 border-2 border-stone-800 shadow-[4px_4px_0px_#000] bg-[#FFFBEA] focus:outline-none focus:ring-2 text-sm sm:text-base"
             />
 
             {/* File input */}
-            <label className="block mb-4 cursor-pointer font-semibold uppercase text-sm tracking-wider">
+            <label className="block mb-4 cursor-pointer font-semibold uppercase text-xs sm:text-sm tracking-wider">
               <span className="block mb-1">Update Cover Image</span>
               <input
                 type="file"
                 onChange={(e) => setEditFile(e.target.files[0])}
-                className="block w-full text-sm border-2 border-stone-800 p-2 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] cursor-pointer"
+                className="block w-full text-xs sm:text-sm border-2 border-stone-800 p-2 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] cursor-pointer"
               />
             </label>
 
             {/* Buttons */}
-            <div className="flex justify-end gap-4 mt-6">
+            <div className="flex justify-end gap-3 sm:gap-4 mt-4 sm:mt-6">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsEditing(false)}
-                className="px-5 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] uppercase font-bold tracking-wider hover:translate-x-1 hover:-translate-y-1 transition-transform"
+                className="px-4 sm:px-5 py-2 border-2 border-stone-800 bg-[#FDF6E3] shadow-[3px_3px_0px_#000] uppercase font-bold tracking-wider text-xs sm:text-sm hover:translate-x-1 hover:-translate-y-1 transition-transform"
               >
                 Cancel
               </motion.button>
@@ -607,7 +618,7 @@ export default function PostDetail() {
                 whileTap={{ scale: 0.9 }}
                 onClick={handleUpdatePost}
                 disabled={saving}
-                className="px-6 py-2 border-2 border-stone-800 bg-yellow-300 shadow-[4px_4px_0px_#000] uppercase font-bold tracking-widest hover:translate-x-1 hover:-translate-y-1 transition-transform disabled:opacity-50"
+                className="px-5 sm:px-6 py-2 border-2 border-stone-800 bg-yellow-300 shadow-[4px_4px_0px_#000] uppercase font-bold tracking-widest text-xs sm:text-sm hover:translate-x-1 hover:-translate-y-1 transition-transform disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save"}
               </motion.button>
