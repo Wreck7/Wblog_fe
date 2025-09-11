@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react"; // hamburger + close icons
 import useAuthStore from "../store/authStore";
 import defaultAvatar from "../assets/default-avatar.jpg"; // 👈 added fallback
+import Logo from "./Logo";
 
 export default function Navbar() {
   const user = useAuthStore((s) => s.user);
@@ -19,7 +20,7 @@ export default function Navbar() {
       className="flex justify-between items-center px-6 md:px-8 py-5 border-b-[1px] border-stone-700 bg-[#FAF3E0] shadow-[4px_4px_0px_#000000] font-serif relative z-[100]"
     >
       {/* Logo */}
-      <motion.h1
+      {/* <motion.h1
         whileHover={{ rotate: -2, scale: 1.05 }}
         className="text-2xl md:text-3xl font-extrabold uppercase tracking-[0.2em] text-stone-900"
       >
@@ -27,7 +28,8 @@ export default function Navbar() {
           Inkspire
           <span className="absolute left-0 bottom-0 w-full h-[2px] bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
         </Link>
-      </motion.h1>
+      </motion.h1> */}
+      <Logo/>
 
       {/* Desktop Links */}
       <div className="hidden md:flex gap-8 text-sm font-bold uppercase tracking-widest items-center">
