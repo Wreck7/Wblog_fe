@@ -152,30 +152,34 @@ export default function OthersProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF6E3] p-8 font-serif">
+    <div className="min-h-screen bg-[#FDF6E3] p-4 sm:p-6 md:p-8 font-serif">
       {/* Profile Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 120 }}
-        className="flex flex-col items-center border-4 border-stone-800 bg-[#FAF3E0] shadow-[6px_6px_0px_#000] p-6 rounded-lg mb-10 relative"
+        className="flex flex-col items-center border-4 border-stone-800 bg-[#FAF3E0] shadow-[6px_6px_0px_#000] p-4 sm:p-6 rounded-lg mb-6 sm:mb-10 relative w-full max-w-lg mx-auto"
       >
         <img
           src={user?.image_url || defaultAvatar}
           alt="Profile"
-          className="w-28 h-28 rounded-full border-4 border-stone-800 shadow-[4px_4px_0px_#000] mb-4"
+          className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-stone-800 shadow-[4px_4px_0px_#000] mb-3 sm:mb-4"
         />
-        <h2 className="text-3xl font-extrabold uppercase mb-1 tracking-widest">
+        <h2 className="text-2xl sm:text-3xl font-extrabold uppercase mb-1 tracking-widest text-center">
           {user?.username || "Loading..."}
         </h2>
-        {user?.bio && <p className="italic text-stone-700 mb-3">{user.bio}</p>}
+        {user?.bio && (
+          <p className="italic text-stone-700 mb-3 text-center px-2 text-sm sm:text-base">
+            {user.bio}
+          </p>
+        )}
 
         {/* Follow / Unfollow button */}
         {user && currentUser?.id !== user?.id && (
           <button
             onClick={handleFollowToggle}
             disabled={loading}
-            className={`px-4 py-2 mt-2 border-2 border-stone-800 font-bold uppercase tracking-widest shadow-[3px_3px_0px_#000] ${
+            className={`px-4 py-2 mt-2 border-2 border-stone-800 font-bold uppercase tracking-widest shadow-[3px_3px_0px_#000] w-full sm:w-auto ${
               isFollowing
                 ? "bg-red-600 text-[#FAF3E0] hover:bg-red-700"
                 : "bg-green-600 text-[#FAF3E0] hover:bg-green-700"
@@ -186,15 +190,21 @@ export default function OthersProfile() {
         )}
 
         {/* Followers & Following */}
-        <div className="flex gap-10 text-center mt-4">
-          <button onClick={() => openModal("followers")}>
-            <p className="text-xl font-bold cursor-pointer">
+        <div className="flex gap-6 sm:gap-10 text-center mt-4 w-full justify-center">
+          <button
+            onClick={() => openModal("followers")}
+            className="flex-1 sm:flex-none"
+          >
+            <p className="text-lg sm:text-xl font-bold cursor-pointer">
               {followers.length}
             </p>
             <span className="uppercase text-xs tracking-widest">Followers</span>
           </button>
-          <button onClick={() => openModal("following")}>
-            <p className="text-xl font-bold">{following.length}</p>
+          <button
+            onClick={() => openModal("following")}
+            className="flex-1 sm:flex-none"
+          >
+            <p className="text-lg sm:text-xl font-bold">{following.length}</p>
             <span className="uppercase text-xs tracking-widest">Following</span>
           </button>
         </div>
@@ -204,10 +214,10 @@ export default function OthersProfile() {
       </motion.div>
 
       {/* Tabs */}
-      <div className="flex justify-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-center mb-6 gap-3 sm:gap-4 w-full max-w-md mx-auto">
         <button
           onClick={() => setActiveTab("posts")}
-          className={`px-6 py-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] uppercase font-bold text-sm tracking-widest ${
+          className={`px-6 py-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] uppercase font-bold text-sm tracking-widest flex-1 ${
             activeTab === "posts"
               ? "bg-stone-800 text-[#FAF3E0]"
               : "bg-[#FDF6E3] hover:bg-stone-200"
@@ -217,7 +227,7 @@ export default function OthersProfile() {
         </button>
         <button
           onClick={() => setActiveTab("bookmarks")}
-          className={`px-6 py-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] uppercase font-bold text-sm tracking-widest ml-4 ${
+          className={`px-6 py-2 border-2 border-stone-800 shadow-[3px_3px_0px_#000] uppercase font-bold text-sm tracking-widest flex-1 ${
             activeTab === "bookmarks"
               ? "bg-stone-800 text-[#FAF3E0]"
               : "bg-[#FDF6E3] hover:bg-stone-200"
@@ -228,7 +238,7 @@ export default function OthersProfile() {
       </div>
 
       {/* Tab Content */}
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="wait">
           {activeTab === "posts" && (
             <motion.div
@@ -237,7 +247,7 @@ export default function OthersProfile() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.3 }}
-              className="col-span-full grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+              className="col-span-full grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             >
               {posts.length > 0 ? (
                 posts.map((post) => (
@@ -267,7 +277,7 @@ export default function OthersProfile() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.3 }}
-              className="col-span-full grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+              className="col-span-full grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             >
               {bookmarks.length > 0 ? (
                 bookmarks.map((bm) => {
@@ -278,11 +288,11 @@ export default function OthersProfile() {
                       key={post.id}
                       id={post.id}
                       title={post.title}
-                      excerpt={post.content.slice(0, 100) + "..."} // preview text
+                      excerpt={post.content.slice(0, 100) + "..."}
                       coverImage={post.cover_image_url}
                       author={post.profiles.username}
                       authorImage={post.profiles.image_url}
-                      category={null} // if you don’t have categories yet
+                      category={null}
                     />
                   );
                 })
@@ -303,20 +313,20 @@ export default function OthersProfile() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           >
             <motion.div
-              initial={{ scale: 0.8 }}
+              initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
+              exit={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="bg-[#FAF3E0] border-4 border-stone-800 shadow-[6px_6px_0px_#000] p-6 rounded-lg w-80 relative"
+              className="bg-[#FAF3E0] border-4 border-stone-800 shadow-[6px_6px_0px_#000] p-4 sm:p-6 rounded-lg w-full max-w-sm relative"
             >
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-widest">
+              <h3 className="text-lg sm:text-xl font-bold mb-4 uppercase tracking-widest">
                 {modalType === "followers" ? "Followers" : "Following"}
               </h3>
 
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1 sm:pr-2">
                 {(modalType === "followers" ? followers : following).map(
                   (u) => {
                     const profile = u.profiles;
@@ -336,7 +346,7 @@ export default function OthersProfile() {
                         <img
                           src={profile?.image_url || defaultAvatar}
                           alt={profile?.username}
-                          className="w-10 h-10 rounded-full border-2 border-stone-800 object-cover"
+                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-stone-800 object-cover"
                         />
                         <span className="font-semibold">
                           {profile?.username}
