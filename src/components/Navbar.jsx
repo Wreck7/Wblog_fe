@@ -25,7 +25,7 @@ export default function Navbar() {
         className="text-2xl md:text-3xl font-extrabold uppercase tracking-[0.2em] text-stone-900"
       >
         <Link to="/" className="relative group">
-          Inkspire
+          Wblog
           <span className="absolute left-0 bottom-0 w-full h-[2px] bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
         </Link>
       </motion.h1> */}

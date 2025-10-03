@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export default function Logo() {
-  const letters = "Inkspire".split(""); // Sentence case looks better
+  const letters = "Wblog".split(""); // Sentence case looks better
 
   // ... (variants are the same)
   const containerVariants = {

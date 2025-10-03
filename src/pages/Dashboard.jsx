@@ -338,7 +338,7 @@ export default function Dashboard() {
             }`}
           >
             <h2 className="text-5xl font-bold text-stone-800 mb-6">
-              Why Choose InkSpire?
+              Why Choose Wblog?
             </h2>
             <p className="text-xl text-stone-700 max-w-3xl mx-auto">
               Experience the perfect blend of nostalgic charm and modern
@@ -419,7 +419,7 @@ export default function Dashboard() {
                 name: "Sarah Johnson",
                 role: "Romance Novelist",
                 quote:
-                  "InkSpire brought back my love for writing. The vintage editor feels like writing on my grandmother's typewriter, but with all the modern conveniences I need.",
+                  "Wblog brought back my love for writing. The vintage editor feels like writing on my grandmother's typewriter, but with all the modern conveniences I need.",
               },
               {
                 name: "David Chen",
@@ -464,7 +464,7 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-stone-700 rounded-lg flex items-center justify-center mr-4">
                   <BookOpen className="w-8 h-8 text-stone-100" />
                 </div>
-                <span className="text-3xl font-bold">InkSpire</span>
+                <span className="text-3xl font-bold">Wblog</span>
               </div>
               <p className="text-stone-300 mb-6 max-w-md">
                 Where every story finds its voice and every writer finds their
@@ -562,7 +562,7 @@ export default function Dashboard() {
 
           <div className="border-t border-stone-700 pt-8 text-center">
             <p className="text-stone-400">
-              © 2025 InkSpire. All rights reserved. Made with vintage love and
+              © 2025 Wblog. All rights reserved. Made with vintage love and
               modern code.
             </p>
           </div>
