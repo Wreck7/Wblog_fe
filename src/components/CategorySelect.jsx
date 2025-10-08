@@ -7,7 +7,7 @@ export default function CategorySelect({ value, onChange }) {
   useEffect(() => {
     // Fetch categories from backend
     axios
-      .get("https://wblog-be.onrender.com//categories") // adjust to your backend URL
+      .get("https://wblog-be.onrender.com/categories") // adjust to your backend URL
       .then((res) => {
         setCategories(res.data.categories);
       })

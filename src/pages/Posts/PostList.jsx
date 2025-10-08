@@ -14,7 +14,7 @@ export default function Feed() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("https://wblog-be.onrender.com//categories");
+        const res = await fetch("https://wblog-be.onrender.com/categories");
         const data = await res.json();
         setCategories(data.categories || []);
       } catch (err) {
@@ -30,8 +30,8 @@ export default function Feed() {
       try {
         let url =
           selectedCategory === "all"
-            ? "https://wblog-be.onrender.com//posts"
-            : `https://wblog-be.onrender.com//feed?category_id=${selectedCategory}`;
+            ? "https://wblog-be.onrender.com/posts"
+            : `https://wblog-be.onrender.com/feed?category_id=${selectedCategory}`;
 
         const res = await fetch(url);
         const data = await res.json();
